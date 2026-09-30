@@ -30,7 +30,7 @@ app.use((req, res, next) => {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "script-src 'self'",
-      "connect-src 'self' https://formsubmit.co",
+      "connect-src 'self' https://formsubmit.co https://api.web3forms.com https://script.google.com https://script.googleusercontent.com",
       "form-action 'self'",
       "base-uri 'self'",
     ].join('; '),

@@ -6,7 +6,20 @@
     priceTwd: 380,
   };
   const PROXY_FEE_TWD = 0; // 首批代購原始客戶免代購費
-  const CUSTOMER_EMAIL = 'cia8885@gmail.com';
+
+  // 前端設定（public/js/config.js），沒設定時使用下列預設值
+  const CFG = Object.assign(
+    {
+      contactEmail: 'cia8885@gmail.com',
+      appsScriptUrl: '',
+      web3formsKey: '',
+      formsubmit: false,
+      jpyToTwd: 0.22,
+    },
+    window.SHOP_CONFIG || {},
+  );
+  const cfg = () => CFG;
+  const CUSTOMER_EMAIL = CFG.contactEmail;
   const PAGE_SIZE = 24;
   const LS_LANG = 'jmd.lang';
   const LS_CART = 'jmd.cart';
@@ -649,7 +662,134 @@
     return { ok: true, transport: 'formsubmit-client', ref: order.ref };
   }
 
-  /** 站台若部署了後端（Render Web Service）就走 /api/order，否則由瀏覽器直接送 FormSubmit。 */
+  function orderHtml(order) {
+    const esc2 = escapeHtml;
+    const rows = order.items
+      .map(
+        (i, n) => `<tr>
+<td style="padding:7px 8px;border-bottom:1px solid #eee">${n + 1}</td>
+<td style="padding:7px 8px;border-bottom:1px solid #eee"><b>${esc2(i.name)}</b><br><span style="color:#888;font-size:12px">${esc2(i.brand)} · ${esc2(
+          i.packText || (i.sheets ? `${i.sheets} 枚` : '—'),
+        )} · ${esc2(i.id)}</span></td>
+<td style="padding:7px 8px;border-bottom:1px solid #eee;text-align:center">${i.qty}</td>
+<td style="padding:7px 8px;border-bottom:1px solid #eee;text-align:right">${i.unitYen == null ? '待報價' : `¥${i.unitYen}`}</td>
+<td style="padding:7px 8px;border-bottom:1px solid #eee;text-align:right">${i.weightG * i.qty} g</td>
+</tr>`,
+      )
+      .join('');
+
+    return `<!doctype html><html><body style="margin:0;background:#f5f4fa;font-family:'PingFang TC','Microsoft JhengHei',Arial,sans-serif;color:#16142c">
+<div style="max-width:720px;margin:0 auto;padding:20px 14px">
+<div style="background:linear-gradient(120deg,#6b4eff,#ff5c8a);color:#fff;border-radius:16px 16px 0 0;padding:20px 22px">
+  <div style="font-size:12px;letter-spacing:.14em;opacity:.85">日本嚴選代購 · 新需求通知</div>
+  <h1 style="margin:8px 0 4px;font-size:21px">${esc2(order.customer.name)} 的代購需求</h1>
+  <div style="font-size:13px;opacity:.9">需求編號 <b>${esc2(order.ref)}</b></div>
+</div>
+<div style="background:#fff;border-radius:0 0 16px 16px;padding:20px 22px">
+  <table style="width:100%;border-collapse:collapse;font-size:14px">
+    <tr><td style="padding:5px 0;width:110px;color:#666">姓名</td><td style="padding:5px 0"><b>${esc2(order.customer.name)}</b></td></tr>
+    <tr><td style="padding:5px 0;color:#666">電話</td><td style="padding:5px 0">${esc2(order.customer.phone)}</td></tr>
+    <tr><td style="padding:5px 0;color:#666">台灣收貨地址</td><td style="padding:5px 0"><b>${esc2(order.customer.address)}</b></td></tr>
+    <tr><td style="padding:5px 0;color:#666">Email</td><td style="padding:5px 0">${esc2(order.customer.email || '—')}</td></tr>
+    <tr><td style="padding:5px 0;color:#666">備註</td><td style="padding:5px 0">${esc2(order.customer.note || '—')}</td></tr>
+  </table>
+  <h2 style="font-size:15px;margin:20px 0 8px">商品清單</h2>
+  <table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr style="background:#f2f0fb">
+      <th style="padding:7px 8px;text-align:left">#</th><th style="padding:7px 8px;text-align:left">商品</th>
+      <th style="padding:7px 8px">數量</th><th style="padding:7px 8px;text-align:right">日圓單價</th>
+      <th style="padding:7px 8px;text-align:right">預估重量</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <h2 style="font-size:15px;margin:20px 0 8px">費用試算（系統估算）</h2>
+  <table style="width:100%;border-collapse:collapse;font-size:14px">
+    <tr><td style="padding:5px 0;color:#666">商品小計（現場價換算）</td><td style="padding:5px 0;text-align:right"><b>NT$${order.totals.goodsTwd}</b>（日圓合計 ¥${order.totals.goodsJpy}）</td></tr>
+    <tr><td style="padding:5px 0;color:#666">預估總重量</td><td style="padding:5px 0;text-align:right"><b>${order.totals.weightG} g</b></td></tr>
+    <tr><td style="padding:5px 0;color:#666">計費重量（每 3 公斤 NT$380，未滿以 3 公斤計）</td><td style="padding:5px 0;text-align:right"><b>${order.totals.billedKg} kg</b></td></tr>
+    <tr><td style="padding:5px 0;color:#666">預估運費</td><td style="padding:5px 0;text-align:right"><b>NT$${order.totals.shippingTwd}</b></td></tr>
+    <tr><td style="padding:5px 0;color:#666">代購服務費（首批原始客戶）</td><td style="padding:5px 0;text-align:right;color:#0a8f5f"><b>免費</b></td></tr>
+    <tr><td style="padding:9px 0;border-top:1px solid #eee;font-weight:700">預估總額</td><td style="padding:9px 0;border-top:1px solid #eee;text-align:right;font-weight:900;font-size:17px;color:#4a2fd6">NT$${order.totals.totalTwd}</td></tr>
+  </table>
+  <p style="background:#f3f1ff;border-radius:10px;padding:11px 13px;font-size:12.5px;color:#5a5678;margin-top:16px">
+    ※ 以上價格、重量與運費均為系統估算，實際報價、實際重量與最終運費以客服最後確認為準。
+  </p>
+</div></div></body></html>`;
+  }
+
+  /** Google Apps Script：用屋主自己的 Gmail 寄信，並自動寫進 Google 試算表。 */
+  async function postToAppsScript(order) {
+    const url = cfg().appsScriptUrl;
+    const payload = JSON.stringify({
+      ref: order.ref,
+      submittedAt: order.submittedAt,
+      emailSubject: `【日本嚴選代購】新代購需求 ${order.ref} — ${order.customer.name}`,
+      customer: order.customer,
+      items: order.items,
+      totals: order.totals,
+      plainText: orderText(order),
+      htmlBody: orderHtml(order),
+    });
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: payload,
+        redirect: 'follow',
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || (data && data.ok === false)) throw new Error(data.error || `Apps Script HTTP ${res.status}`);
+      return { ok: true, transport: 'apps-script', ref: order.ref };
+    } catch (err) {
+      // 少數瀏覽器會因 CORS 讀不到回應，但請求其實已經送出（Apps Script 端仍會寫入試算表）
+      await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: payload });
+      console.warn('[shop] Apps Script 回應無法讀取，已改用 no-cors 送出:', err.message);
+      return { ok: true, transport: 'apps-script-nocors', ref: order.ref };
+    }
+  }
+
+  /** Web3Forms：免費 250 封/月，需要 access key。 */
+  async function postToWeb3Forms(order) {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: cfg().web3formsKey,
+        subject: `【日本嚴選代購】新代購需求 ${order.ref} — ${order.customer.name}`,
+        from_name: '日本嚴選代購',
+        replyto: order.customer.email || undefined,
+        需求編號: order.ref,
+        姓名: order.customer.name,
+        電話: order.customer.phone,
+        台灣收貨地址: order.customer.address,
+        客戶Email: order.customer.email || '（未填）',
+        備註: order.customer.note || '—',
+        商品明細: order.items.map((i) => `${i.name}（${i.id}） x${i.qty}`).join('\n'),
+        預估總重: `${order.totals.weightG} g（計費 ${order.totals.billedKg} kg）`,
+        預估運費: `NT$${order.totals.shippingTwd}`,
+        代購服務費: '免費（首批原始客戶）',
+        預估總額: `NT$${order.totals.totalTwd}`,
+        訂單全文: orderText(order),
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || (data && data.success === false)) throw new Error(data.message || `Web3Forms HTTP ${res.status}`);
+    return { ok: true, transport: 'web3forms', ref: order.ref };
+  }
+
+  async function postToApi(order) {
+    const res = await fetch('/api/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  }
+
+  /** 站台若部署了後端（Render Web Service）就走 /api/order。 */
   async function detectApi() {
     try {
       const controller = new AbortController();
@@ -666,6 +806,27 @@
     return state.apiEnabled;
   }
 
+  /** 依序嘗試所有可用的寄送管道，任何一個成功就完成。 */
+  async function deliverOrder(order) {
+    const c = cfg();
+    const channels = [];
+    if (state.apiEnabled && c.apiEnabled !== false) channels.push({ name: 'api', fn: postToApi });
+    if (c.appsScriptUrl) channels.push({ name: 'apps-script', fn: postToAppsScript });
+    if (c.web3formsKey) channels.push({ name: 'web3forms', fn: postToWeb3Forms });
+    if (c.formsubmit) channels.push({ name: 'formsubmit', fn: postToFormSubmit });
+
+    const errors = [];
+    for (const ch of channels) {
+      try {
+        return await ch.fn(order);
+      } catch (err) {
+        console.warn(`[shop] ${ch.name} 寄送失敗:`, err.message);
+        errors.push(`${ch.name}: ${err.message}`);
+      }
+    }
+    throw new Error(errors.join(' | ') || '沒有可用的寄送管道');
+  }
+
   async function submitOrder(event) {
     event.preventDefault();
     if (state.sending) return;
@@ -680,23 +841,8 @@
 
     let result = null;
     try {
-      if (state.apiEnabled) {
-        const res = await fetch('/api/order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(order),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
-        result = data;
-      } else {
-        result = await postToFormSubmit(order);
-      }
-    } catch (err) {
-      console.warn('api path failed, using client fallback', err);
-      try {
-        result = await postToFormSubmit(order);
-      } catch (err2) {
+      result = await deliverOrder(order);
+    } catch (err2) {
         console.error(err2);
         toast(`${t('errSend')}：${CUSTOMER_EMAIL}`);
         state.sending = false;
@@ -705,7 +851,6 @@
         renderManualFallback(order);
         $('#order').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
-      }
     }
 
     state.sending = false;

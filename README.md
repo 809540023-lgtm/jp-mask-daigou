@@ -96,31 +96,40 @@ npm test           # 單元測試
 
 ## 寄信設定（重要）
 
-訂單一律寄到 `cia8885@gmail.com`，依部署方式有兩條路徑，前端會**自動偵測**要用哪一條：
+訂單一律寄到 `cia8885@gmail.com`。前端會在送出時**依序嘗試**下列管道，任何一個成功就完成，全部失敗才會請客戶一鍵手動寄出（訂單不會遺失）：
 
-### A. 目前線上部署（Render 靜態站台）— 瀏覽器直送
+| 順序 | 管道 | 需要什麼 | 狀態 |
+|---|---|---|---|
+| 1 | `POST /api/order`（Render Web Service 後端） | 後端服務 + SMTP 憑證 | 選用 |
+| 2 | **Google Apps Script**（推薦） | 不需任何密碼，3 分鐘設定 | 見 `apps-script/README.md` |
+| 3 | Web3Forms | 免費 access key（250 封/月） | 選用 |
+| 4 | FormSubmit | 免設定 | ⚠️ 2026-10 服務端全面回傳 500，預設關閉 |
+| 5 | 手動：一鍵用 Email 寄出／複製訂單內容 | 無 | 一定會出現的保底 |
 
-靜態站台沒有後端，送出表單時會由瀏覽器直接把訂單送到 FormSubmit，再轉寄到 `cia8885@gmail.com`。
+### 啟用 Google Apps Script（推薦，免費且免密碼）
 
-> **第一次上線後請做一次：** 隨便送出一筆測試訂單，`cia8885@gmail.com` 會收到 FormSubmit 的**啟用信**，點下信中的啟用連結後，之後的訂單才會正常轉寄。（未啟用前送出會被 FormSubmit 擋下。）
+1. 開 <https://sheets.new> 建立「日本代購訂單」試算表。
+2. **擴充功能 → Apps Script**，貼上 `apps-script/Code.gs` 全文，存檔。
+3. **部署 → 新增部署作業 → 網頁應用程式**：
+   - 執行身分：**我**
+   - 具有存取權的使用者：**任何人**
+4. 授權後複製 `/exec` 結尾的 **Web App URL**。
+5. 貼到 `public/js/config.js` 的 `appsScriptUrl`，commit + push 即完成。
 
-### B. 選用：Render Web Service 後端（較穩定，不經過第三方）
+之後每筆訂單會：① 用你自己的 Gmail 寄到 `cia8885@gmail.com`；② 自動寫入 Google 試算表（首批代購原始客戶名單永久留存）。
 
-若方案額度允許，可依 `render.yaml` 內註解建立 Web Service，前端偵測到 `/api/health` 就會自動改走後端。後端寄送順序：
+完整圖文步驟與常見問題：**`apps-script/README.md`**
 
-1. **SMTP**（最穩定）— 在 Render 後台設定環境變數：
+### 選用：Render Web Service 後端
 
-   | 變數 | 值 |
-   |---|---|
-   | `GMAIL_USER` | `cia8885@gmail.com` |
-   | `GMAIL_APP_PASSWORD` | Gmail **應用程式密碼**（16 碼，非登入密碼） |
+若方案額度允許，可依 `render.yaml` 內註解建立 Web Service（前端偵測到 `/api/health` 就會自動改走後端）。後端寄送順序為 SMTP → FormSubmit 代理：
 
-   應用程式密碼產生：Google 帳號 → 安全性 → 兩步驟驗證 → 應用程式密碼。
+| 變數 | 值 |
+|---|---|
+| `GMAIL_USER` | `cia8885@gmail.com` |
+| `GMAIL_APP_PASSWORD` | Gmail **應用程式密碼**（非登入密碼） |
 
-   也可改用自架 SMTP：`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `MAIL_FROM`。
-
-2. **FormSubmit 代理** — 沒填 SMTP 時自動使用（同樣需要先啟用）。
-3. 兩者都失敗 → 前端改由瀏覽器直接呼叫 FormSubmit，並在畫面提示客服信箱。
+也可改用自架 SMTP：`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `MAIL_FROM`。
 
 ## API
 
