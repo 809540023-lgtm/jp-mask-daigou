@@ -25,6 +25,7 @@
     cart: {},
     sending: false,
     lastOrder: null,
+    apiEnabled: false,
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -549,6 +550,51 @@
     return true;
   }
 
+  async function postToFormSubmit(order) {
+    const res = await fetch(`https://formsubmit.co/ajax/${CUSTOMER_EMAIL}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        _subject: `【日本嚴選代購】新需求 ${order.ref}`,
+        _template: 'table',
+        _captcha: 'false',
+        需求編號: order.ref,
+        姓名: order.customer.name,
+        電話: order.customer.phone,
+        台灣收貨地址: order.customer.address,
+        Email: order.customer.email || '（未填）',
+        備註: order.customer.note || '—',
+        商品明細: order.items
+          .map((i) => `${i.name}（${i.id}） x${i.qty}｜${i.unitYen == null ? '待報價' : `¥${i.unitYen}`}｜${i.weightG * i.qty}g`)
+          .join('\n'),
+        預估總重: `${order.totals.weightG} g（計費 ${order.totals.billedKg} kg）`,
+        預估運費: `NT$${order.totals.shippingTwd}`,
+        代購服務費: '免費（首批原始客戶）',
+        預估總額: `NT$${order.totals.totalTwd}`,
+        備註說明: '本頁價格、重量與運費均為系統估算，實際報價以客服最後確認為準。',
+      }),
+    });
+    if (!res.ok) throw new Error(`FormSubmit HTTP ${res.status}`);
+    return { ok: true, transport: 'formsubmit-client', ref: order.ref };
+  }
+
+  /** 站台若部署了後端（Render Web Service）就走 /api/order，否則由瀏覽器直接送 FormSubmit。 */
+  async function detectApi() {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2500);
+      const res = await fetch('/api/health', { signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) {
+        const data = await res.json();
+        state.apiEnabled = Boolean(data && data.ok);
+      }
+    } catch (err) {
+      state.apiEnabled = false;
+    }
+    return state.apiEnabled;
+  }
+
   async function submitOrder(event) {
     event.preventDefault();
     if (state.sending) return;
@@ -563,36 +609,22 @@
 
     let result = null;
     try {
-      const res = await fetch('/api/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(order),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
-      result = data;
-    } catch (err) {
-      // 後端不可用時，改由瀏覽器直接送到 FormSubmit（同一客服信箱）
-      try {
-        const res2 = await fetch(`https://formsubmit.co/ajax/${CUSTOMER_EMAIL}`, {
+      if (state.apiEnabled) {
+        const res = await fetch('/api/order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            _subject: `【日本嚴選代購】新需求 ${order.ref}`,
-            _template: 'table',
-            需求編號: order.ref,
-            姓名: order.customer.name,
-            電話: order.customer.phone,
-            地址: order.customer.address,
-            備註: order.customer.note || '—',
-            明細: order.items.map((i) => `${i.name} x${i.qty}（${i.id}）`).join('；'),
-            預估總重: `${order.totals.weightG} g`,
-            預估運費: `NT$${order.totals.shippingTwd}`,
-            預估總額: `NT$${order.totals.totalTwd}`,
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(order),
         });
-        if (!res2.ok) throw new Error(`fallback HTTP ${res2.status}`);
-        result = { ok: true, transport: 'formsubmit-client', ref: order.ref };
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        result = data;
+      } else {
+        result = await postToFormSubmit(order);
+      }
+    } catch (err) {
+      console.warn('api path failed, using client fallback', err);
+      try {
+        result = await postToFormSubmit(order);
       } catch (err2) {
         console.error(err2);
         toast(`${t('errSend')}：${CUSTOMER_EMAIL}`);
@@ -759,6 +791,9 @@
     renderGrid();
     renderCart();
     bindEvents();
+    detectApi().then((enabled) => {
+      if (!enabled) console.info('[shop] 未偵測到後端 API，將由瀏覽器直接寄送訂單到客服信箱');
+    });
 
     $('#statItems').textContent = fmtInt(state.products.length);
     $('#statPriced').textContent = fmtInt(state.meta.withPrice || state.products.filter((p) => p.priceYenTaxIn != null).length);

@@ -96,7 +96,17 @@ npm test           # 單元測試
 
 ## 寄信設定（重要）
 
-訂單預設寄到 `cia8885@gmail.com`。寄送管道會自動依序嘗試：
+訂單一律寄到 `cia8885@gmail.com`，依部署方式有兩條路徑，前端會**自動偵測**要用哪一條：
+
+### A. 目前線上部署（Render 靜態站台）— 瀏覽器直送
+
+靜態站台沒有後端，送出表單時會由瀏覽器直接把訂單送到 FormSubmit，再轉寄到 `cia8885@gmail.com`。
+
+> **第一次上線後請做一次：** 隨便送出一筆測試訂單，`cia8885@gmail.com` 會收到 FormSubmit 的**啟用信**，點下信中的啟用連結後，之後的訂單才會正常轉寄。（未啟用前送出會被 FormSubmit 擋下。）
+
+### B. 選用：Render Web Service 後端（較穩定，不經過第三方）
+
+若方案額度允許，可依 `render.yaml` 內註解建立 Web Service，前端偵測到 `/api/health` 就會自動改走後端。後端寄送順序：
 
 1. **SMTP**（最穩定）— 在 Render 後台設定環境變數：
 
@@ -109,9 +119,8 @@ npm test           # 單元測試
 
    也可改用自架 SMTP：`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `MAIL_FROM`。
 
-2. **FormSubmit 代理**（免設定）— 沒填 SMTP 時自動使用。**第一次寄送後，`cia8885@gmail.com` 會收到一封 FormSubmit 啟用信，點下啟用連結後才會開始正常轉寄。**
-
-3. 兩者都失敗 → 前端自動改由瀏覽器直接呼叫 FormSubmit，並在畫面提示客服信箱。
+2. **FormSubmit 代理** — 沒填 SMTP 時自動使用（同樣需要先啟用）。
+3. 兩者都失敗 → 前端改由瀏覽器直接呼叫 FormSubmit，並在畫面提示客服信箱。
 
 ## API
 
@@ -126,20 +135,24 @@ npm test           # 單元測試
 
 ### GitHub
 
+<https://github.com/809540023-lgtm/jp-mask-daigou>（main 分支）
+
 ```bash
-git remote add origin https://github.com/<帳號>/jp-mask-daigou.git
+git remote add origin https://github.com/809540023-lgtm/jp-mask-daigou.git
 git push -u origin main
 ```
 
-### Render
+### Render（目前線上）
 
-1. Render Dashboard → **New → Blueprint** → 選這個 repo（會讀取 `render.yaml`），或
-2. 手動建 **Web Service**：
-   - Runtime：Node
-   - Build Command：`npm ci`
-   - Start Command：`npm start`
-   - Health Check Path：`/api/health`
-3. 在 Environment 填入 `GMAIL_USER` 與 `GMAIL_APP_PASSWORD`（可選但要穩定寄信建議填）。
+- **網址：<https://jp-mask-daigou-static.onrender.com>**
+- 類型：Static Site（免費方案）
+- Build Command：`npm ci && npm run build:static`
+- Publish Directory：`public`
+- 已設定 `autoDeploy`，push 到 `main` 就會自動重新部署。
+
+要用 Blueprint 重建：Render Dashboard → **New → Blueprint** → 選這個 repo（會讀取 `render.yaml`）。
+
+> 註：Render 免費額度用罄時無法建立免費 Web Service；此時靜態站台 + 瀏覽器直送 FormSubmit 已經可以完整運作，之後額度允許再依 `render.yaml` 註解開啟後端即可。
 
 ## 注意事項
 
