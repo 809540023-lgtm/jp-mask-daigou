@@ -240,7 +240,8 @@
       : `<div class="empty"><div style="font-size:40px">🔍</div><p>${state.lang === 'zh-Hans' ? '找不到符合的商品，换个关键字试试。' : '找不到符合的商品，換個關鍵字試試。'}</p></div>`;
     $('#loadMore').hidden = list.length <= state.shown;
     $('#catalogCount').textContent = `${fmtInt(list.length)} / ${fmtInt(state.products.length)} ${t('itemsCount')}`;
-    state.viewerList = list;
+    // 放大檢視一次只建立目前列表範圍的投影片，避免一次渲染上百張造成手機卡頓
+    state.viewerList = slice;
   }
 
   /* ---------- viewer ---------- */
