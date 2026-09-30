@@ -24,7 +24,7 @@
     viewerIndex: 0,
     cart: {},
     sending: false,
-    lastOrder: null,
+    orderPanel: null,
     apiEnabled: false,
   };
 
@@ -93,7 +93,7 @@
 
   function addToCart(id, qty) {
     const q = qty || 1;
-    state.lastOrder = null;
+    state.orderPanel = null;
     state.cart[id] = Math.min((state.cart[id] || 0) + q, 99);
     saveCart();
     renderCart();
@@ -429,7 +429,7 @@
           .join('')
       : `<p class="muted" style="text-align:center;padding:18px 0">${t('cartEmpty')}</p>`;
     $('#summaryTotals').innerHTML = totalsHtml(tt);
-    if (state.lastOrder) renderSuccess(state.lastOrder);
+    if (state.orderPanel) renderOrderPanel();
 
     // sync any visible qty widgets / add buttons
     $$('[data-add]').forEach((btn) => {
@@ -454,6 +454,76 @@
   <p style="margin-top:12px"><a class="btn btn--ghost" href="#catalog">${t('successClose')}</a></p>
 </div>`;
     $('#summaryTotals').innerHTML = '';
+  }
+
+  function orderText(order) {
+    const lines = [
+      `【日本嚴選代購】代購需求 ${order.ref}`,
+      '',
+      `姓名：${order.customer.name}`,
+      `電話：${order.customer.phone}`,
+      `台灣收貨地址：${order.customer.address}`,
+      `Email：${order.customer.email || '—'}`,
+      `備註：${order.customer.note || '—'}`,
+      '',
+      '商品清單：',
+      ...order.items.map(
+        (i, n) =>
+          `${n + 1}. ${i.name}（${i.brand}｜${i.packText || (i.sheets ? `${i.sheets} 枚` : '—')}｜${i.id}） x${i.qty}` +
+          `　單價 ${i.unitYen == null ? '待報價' : `¥${i.unitYen}`}　預估重量 ${i.weightG * i.qty} g`,
+      ),
+      '',
+      `商品小計（現場價換算）：NT$${order.totals.goodsTwd}（日圓合計 ¥${order.totals.goodsJpy}）`,
+      `預估總重量：${order.totals.weightG} g`,
+      `計費重量：${order.totals.billedKg} kg（每 3 公斤 NT$380，未滿以 3 公斤計）`,
+      `預估運費：NT$${order.totals.shippingTwd}`,
+      `代購服務費：免費（首批原始客戶）`,
+      `預估總額：NT$${order.totals.totalTwd}`,
+      '',
+      '※ 以上價格、重量與運費均為系統估算，實際報價以客服最後確認為準。',
+    ];
+    return lines.join('\n');
+  }
+
+  function renderOrderPanel() {
+    const panel = state.orderPanel;
+    if (!panel) return;
+    if (panel.manual) renderManualFallback(panel.order);
+    else renderSuccess(panel.ref);
+  }
+
+  function renderManualFallback(order) {
+    if (!state.orderPanel || state.orderPanel.ref !== order.ref) state.orderPanel = { manual: true, ref: order.ref, order };
+    const text = orderText(order);
+    const mailto = `mailto:${CUSTOMER_EMAIL}?subject=${encodeURIComponent(`【日本嚴選代購】代購需求 ${order.ref}`)}&body=${encodeURIComponent(text)}`;
+    window.__lastOrder = order;
+    $('#summaryItems').innerHTML = `
+<div class="success">
+  <div class="success__icon">📮</div>
+  <h3>${state.lang === 'zh-Hans' ? '自动寄送暂时不通，请用下列方式送出' : '自動寄送暫時不通，請用下列方式送出'}</h3>
+  <p class="muted">${state.lang === 'zh-Hans' ? '你的清单已保留在下方，点按钮即可用 Email 寄给客服，或直接复制内容联络我们。' : '你的清單已保留在下方，點按鈕即可用 Email 寄給客服，或直接複製內容聯絡我們。'}</p>
+  <p>${t('orderRef')}：<code>${escapeHtml(order.ref)}</code></p>
+  <p style="display:grid;gap:10px;margin:16px 0 0">
+    <a class="btn btn--primary" href="${mailto}">${state.lang === 'zh-Hans' ? '用 Email 寄出订单' : '用 Email 寄出訂單'}</a>
+    <button type="button" class="btn btn--ghost" id="copyOrder">${state.lang === 'zh-Hans' ? '复制订单内容' : '複製訂單內容'}</button>
+  </p>
+  <textarea id="orderTextArea" readonly style="width:100%;margin-top:14px;height:180px;font-size:12px;border-radius:12px;border:1px solid #e3e0f0;padding:10px;font-family:ui-monospace,monospace">${escapeHtml(text)}</textarea>
+</div>`;
+    $('#summaryTotals').innerHTML = '';
+    const copyBtn = $('#copyOrder');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          toast(state.lang === 'zh-Hans' ? '已复制订单内容' : '已複製訂單內容');
+        } catch (err) {
+          const ta = $('#orderTextArea');
+          ta.focus();
+          ta.select();
+          toast(state.lang === 'zh-Hans' ? '请按 Command/Ctrl + C 复制' : '請按 Command/Ctrl + C 複製');
+        }
+      });
+    }
   }
 
   /* ---------- toast ---------- */
@@ -632,6 +702,8 @@
         state.sending = false;
         btn.disabled = false;
         btn.textContent = original;
+        renderManualFallback(order);
+        $('#order').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
     }
@@ -641,7 +713,7 @@
     btn.textContent = original;
 
     console.log('order sent', result);
-    state.lastOrder = order.ref;
+    state.orderPanel = { manual: false, ref: order.ref, order };
     state.cart = {};
     saveCart();
     renderCart();
