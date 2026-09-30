@@ -39,6 +39,7 @@
     sending: false,
     orderPanel: null,
     apiEnabled: false,
+    apiProbed: false,
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -790,6 +791,24 @@
   }
 
   /** 站台若部署了後端（Render Web Service）就走 /api/order。 */
+  /** 第一次送出訂單時才探測後端，避免靜態站台在載入時多做一次 404 請求。 */
+  async function ensureApi() {
+    if (state.apiProbed) return state.apiEnabled;
+    if (cfg().apiEnabled === false) {
+      state.apiProbed = true;
+      state.apiEnabled = false;
+      return false;
+    }
+    if (cfg().apiEnabled === true) {
+      state.apiProbed = true;
+      state.apiEnabled = true;
+      return true;
+    }
+    await detectApi();
+    state.apiProbed = true;
+    return state.apiEnabled;
+  }
+
   async function detectApi() {
     try {
       const controller = new AbortController();
@@ -841,6 +860,7 @@
 
     let result = null;
     try {
+      await ensureApi();
       result = await deliverOrder(order);
     } catch (err2) {
         console.error(err2);
@@ -1009,9 +1029,7 @@
     renderGrid();
     renderCart();
     bindEvents();
-    detectApi().then((enabled) => {
-      if (!enabled) console.info('[shop] 未偵測到後端 API，將由瀏覽器直接寄送訂單到客服信箱');
-    });
+
 
     $('#statItems').textContent = fmtInt(state.products.length);
     $('#statPriced').textContent = fmtInt(state.meta.withPrice || state.products.filter((p) => p.priceYenTaxIn != null).length);

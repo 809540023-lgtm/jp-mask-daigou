@@ -23,6 +23,9 @@ window.SHOP_CONFIG = Object.assign(
     // FormSubmit 目前（2026-10）全面回傳 500，先預設關閉；服務恢復後改成 true 即可
     formsubmit: false,
 
+    // 後端 API：'auto' = 送出時自動探測 /api/health；true = 一定用後端；false = 一定不用
+    apiEnabled: 'auto',
+
     // 日圓 -> 新台幣 匯率（僅前端顯示用，實際以客服報價為準）
     jpyToTwd: 0.22,
   },
