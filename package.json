@@ -1,0 +1,26 @@
+{
+  "name": "jp-mask-daigou",
+  "version": "1.0.0",
+  "private": true,
+  "description": "日本面膜代購一頁式下單網站（繁中／簡中），含重量估算與下單寄信 API",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "build:data": "node scripts/build-data.mjs",
+    "build:images": "node scripts/build-images.mjs",
+    "build": "npm run build:data && npm run build:images",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.14"
+  },
+  "devDependencies": {
+    "exceljs": "^4.4.0",
+    "opencc-js": "^1.0.5"
+  }
+}

@@ -1,0 +1,8 @@
+node_modules/
+data/orders.jsonl
+data/orders*.log
+.env
+.env.local
+.DS_Store
+npm-debug.log*
+*.tsbuildinfo

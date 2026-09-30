@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>日本嚴選代購｜面膜・保養品 現場價直送台灣</title>
+<meta name="description" content="日本大阪實地拍攝、現場價直送的代購服務。首批代購原始客戶免代購費，運費每 3 公斤 NT$380。填寫姓名、電話與台灣收貨地址即可下單，實際報價以客服最後確認為準。" />
+<meta name="theme-color" content="#0f1020" />
+<meta property="og:title" content="日本嚴選代購｜面膜・保養品 現場價直送台灣" />
+<meta property="og:description" content="首批代購原始客戶免代購費・運費每 3 公斤 NT$380・手機一屏一商品輕鬆下單" />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B8%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+
+<a class="skip-link" href="#catalog" data-i18n="skip">跳至商品列表</a>
+
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="brand" href="#top">
+      <span class="brand__mark">🌸</span>
+      <span class="brand__text">
+        <strong data-i18n="brandName">日本嚴選代購</strong>
+        <small data-i18n="brandSub">現場價直送台灣</small>
+      </span>
+    </a>
+
+    <nav class="nav__links">
+      <a href="#how" data-i18n="navHow">計費方式</a>
+      <a href="#catalog" data-i18n="navCatalog">商品列表</a>
+      <a href="#order" data-i18n="navOrder">填單下單</a>
+    </nav>
+
+    <div class="nav__actions">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" class="lang__btn is-active" data-lang="zh-Hant">繁中</button>
+        <button type="button" class="lang__btn" data-lang="zh-Hans">简中</button>
+      </div>
+      <button type="button" class="cartbtn" id="cartBtn" aria-label="cart">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M6 6 5 3H2"/></svg>
+        <span class="cartbtn__count" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="hero__bg" aria-hidden="true">
+      <span class="blob blob--1"></span>
+      <span class="blob blob--2"></span>
+      <span class="blob blob--3"></span>
+    </div>
+    <div class="hero__inner">
+      <p class="hero__eyebrow"><span class="pulse"></span><span data-i18n="heroEyebrow">日本大阪・實地拍攝・現場價</span></p>
+      <h1 class="hero__title" data-i18n="heroTitle">日本藥妝代購<br />面膜・保養品 直送台灣</h1>
+      <p class="hero__lead" data-i18n="heroLead">不用飛日本，看到什麼就買什麼。把商品加進清單，系統會自動估算總重量與運費，填寫姓名、電話、台灣收貨地址就完成下單。</p>
+
+      <div class="pillars">
+        <article class="pillar pillar--gold">
+          <span class="pillar__icon">🚚</span>
+          <h3 data-i18n="pillar1Title">運費 3 公斤 NT$380</h3>
+          <p data-i18n="pillar1Body">以公斤數計價，未滿 3 公斤以 3 公斤計。系統會自動加總你清單裡的預估重量並試算運費。</p>
+        </article>
+        <article class="pillar pillar--pink">
+          <span class="pillar__icon">🎁</span>
+          <h3 data-i18n="pillar2Title">首批代購原始客戶・免代購費</h3>
+          <p data-i18n="pillar2Body">第一批加入的原始客戶，代購服務費 NT$0，商品以現場價換算，不會再另外加成。</p>
+        </article>
+        <article class="pillar pillar--violet">
+          <span class="pillar__icon">📸</span>
+          <h3 data-i18n="pillar3Title">現場價・資訊透明</h3>
+          <p data-i18n="pillar3Body">每項商品都標示日圓現場價、折扣、入數與預估重量，方便你比價與估算整包成本。</p>
+        </article>
+      </div>
+
+      <div class="hero__cta">
+        <a class="btn btn--primary btn--lg" href="#catalog" data-i18n="heroCta1">開始挑選商品</a>
+        <a class="btn btn--ghost btn--lg" href="#order" data-i18n="heroCta2">我要直接填單</a>
+      </div>
+
+      <dl class="stats" id="heroStats">
+        <div><dt data-i18n="statItems">商品項目</dt><dd id="statItems">—</dd></div>
+        <div><dt data-i18n="statPriced">有標價商品</dt><dd id="statPriced">—</dd></div>
+        <div><dt data-i18n="statPhotos">現場照片</dt><dd id="statPhotos">—</dd></div>
+        <div><dt data-i18n="statRate">匯率參考</dt><dd id="statRate">—</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section how" id="how">
+    <header class="section__head">
+      <h2 data-i18n="howTitle">怎麼計費？三個步驟就好</h2>
+      <p data-i18n="howLead">系統會依商品入數與分類估算每一包的重量，加總後自動試算運費。最後仍以客服確認的實際重量與報價為準。</p>
+    </header>
+
+    <ol class="steps">
+      <li>
+        <span class="steps__no">1</span>
+        <h3 data-i18n="step1Title">挑選商品加入清單</h3>
+        <p data-i18n="step1Body">瀏覽現場拍攝的商品，點開看規格與價格，選好數量加入清單。</p>
+      </li>
+      <li>
+        <span class="steps__no">2</span>
+        <h3 data-i18n="step2Title">系統自動加總重量</h3>
+        <p data-i18n="step2Body">依每包預估重量自動加總，未滿 3 公斤以 3 公斤計，每 3 公斤運費 NT$380。</p>
+      </li>
+      <li>
+        <span class="steps__no">3</span>
+        <h3 data-i18n="step3Title">填資料送出，客服確認</h3>
+        <p data-i18n="step3Body">填寫姓名、電話、台灣收貨地址後送出，我們會以 Email 收到你的需求並回覆確認。</p>
+      </li>
+    </ol>
+
+    <div class="calc">
+      <div class="calc__row">
+        <label for="calcWeight" data-i18n="calcLabel">快速試算：輸入預估總重（公克）</label>
+        <input type="number" id="calcWeight" min="0" step="50" value="3000" inputmode="numeric" />
+      </div>
+      <div class="calc__out">
+        <div><span data-i18n="calcWeightLabel">預估總重</span><strong id="calcWeightOut">3,000 g</strong></div>
+        <div><span data-i18n="calcBilledLabel">計費重量</span><strong id="calcBilledOut">3 kg</strong></div>
+        <div class="is-accent"><span data-i18n="calcShipLabel">預估運費</span><strong id="calcShipOut">NT$ 380</strong></div>
+      </div>
+      <p class="calc__note" data-i18n="calcNote">商品小計（現場價 × 匯率）另計，首批代購原始客戶免代購費。</p>
+    </div>
+  </section>
+
+  <section class="section catalog" id="catalog">
+    <header class="section__head section__head--row">
+      <div>
+        <h2 data-i18n="catalogTitle">商品列表</h2>
+        <p data-i18n="catalogLead">點任一商品即可放大查看。手機上一屏一項商品，左右滑動換下一項。</p>
+      </div>
+      <p class="catalog__count" id="catalogCount"></p>
+    </header>
+
+    <div class="toolbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="search" data-i18n-placeholder="searchPlaceholder" placeholder="搜尋品牌、品名（中／日文皆可）" />
+      </div>
+      <select id="sort" aria-label="sort">
+        <option value="discount" data-i18n="sortDiscount">折扣高→低</option>
+        <option value="priceAsc" data-i18n="sortPriceAsc">價格低→高</option>
+        <option value="priceDesc" data-i18n="sortPriceDesc">價格高→低</option>
+        <option value="light" data-i18n="sortLight">重量輕→重</option>
+        <option value="unit" data-i18n="sortUnit">單片最便宜</option>
+      </select>
+    </div>
+
+    <div class="chips" id="chips"></div>
+    <div class="grid" id="grid" aria-live="polite"></div>
+    <div class="loadmore"><button type="button" class="btn btn--ghost" id="loadMore" data-i18n="loadMore">載入更多商品</button></div>
+  </section>
+
+  <section class="section order" id="order">
+    <header class="section__head">
+      <h2 data-i18n="orderTitle">填寫收件資料</h2>
+      <p data-i18n="orderLead">送出後系統會立即把清單寄到客服信箱，我們會盡快回覆確認商品、實際重量與最終報價。</p>
+    </header>
+
+    <div class="order__layout">
+      <form class="form card" id="orderForm" novalidate>
+        <div class="field">
+          <label for="fName"><span data-i18n="fName">姓名</span> <em>*</em></label>
+          <input id="fName" name="name" required autocomplete="name" data-i18n-placeholder="fNamePh" placeholder="王小明" />
+        </div>
+        <div class="field">
+          <label for="fPhone"><span data-i18n="fPhone">手機 / 電話</span> <em>*</em></label>
+          <input id="fPhone" name="phone" required inputmode="tel" autocomplete="tel" data-i18n-placeholder="fPhonePh" placeholder="0912-345-678" />
+        </div>
+        <div class="field">
+          <label for="fAddress"><span data-i18n="fAddress">台灣收貨地址</span> <em>*</em></label>
+          <textarea id="fAddress" name="address" rows="2" required autocomplete="street-address" data-i18n-placeholder="fAddressPh" placeholder="台北市大安區…（含郵遞區號 3+2）"></textarea>
+        </div>
+        <div class="field">
+          <label for="fEmail" data-i18n="fEmail">Email（選填，方便收副本）</label>
+          <input id="fEmail" name="email" type="email" autocomplete="email" data-i18n-placeholder="fEmailPh" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label for="fNote" data-i18n="fNote">備註（選填）</label>
+          <textarea id="fNote" name="note" rows="2" data-i18n-placeholder="fNotePh" placeholder="例如：需要指定品牌、到貨時間、代購其他商品…"></textarea>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="fAgree" required />
+          <span data-i18n="fAgree">我已了解此為系統估算，實際報價與運費以客服最後確認為準。</span>
+        </label>
+
+        <button type="submit" class="btn btn--primary btn--block btn--lg" id="submitBtn" data-i18n="submit">送出代購需求</button>
+        <p class="form__hint" data-i18n="formHint">送出即表示同意我們以你留下的聯絡方式與你聯繫。</p>
+      </form>
+
+      <aside class="card summary">
+        <h3 data-i18n="summaryTitle">你的清單</h3>
+        <div id="summaryItems" class="summary__items"></div>
+        <dl class="summary__totals" id="summaryTotals"></dl>
+        <button type="button" class="btn btn--ghost btn--block" id="openCart" data-i18n="editCart">調整清單內容</button>
+      </aside>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div>
+        <h3 data-i18n="footerTitle">日本嚴選代購</h3>
+        <p data-i18n="footerDesc">日本大阪現場採購，面膜與保養品直送台灣。首批代購原始客戶免代購費。</p>
+      </div>
+      <div>
+        <h4 data-i18n="footerContact">客服聯絡</h4>
+        <p><a href="mailto:cia8885@gmail.com">cia8885@gmail.com</a></p>
+        <p class="muted" data-i18n="footerHours">服務時間：每日 10:00–22:00（日本／台灣時間）</p>
+      </div>
+    </div>
+    <p class="disclaimer" data-i18n="disclaimer">※ 本頁所有價格、重量與運費均為系統估算，商品現場價格可能因促銷活動、庫存與匯率變動而調整，<strong>實際報價、實際重量與最終運費一律以客服最後確認為準</strong>。送出表單後我們會與你核對，確認後才會成立訂單。</p>
+    <p class="copyright">© <span id="year"></span> 日本嚴選代購 · Powered by GitHub &amp; Render</p>
+  </footer>
+</main>
+
+<!-- 浮動購物列 -->
+<div class="floatingbar" id="floatingBar" hidden>
+  <div class="floatingbar__info">
+    <strong id="fbCount">0</strong>
+    <span data-i18n="fbItems">項商品</span>
+    <span class="dot">·</span>
+    <span id="fbWeight">0 g</span>
+  </div>
+  <button type="button" class="btn btn--primary" id="fbGo" data-i18n="fbGo">查看清單 / 填單</button>
+</div>
+
+<!-- 商品放大檢視 -->
+<div class="viewer" id="viewer" hidden aria-modal="true" role="dialog">
+  <div class="viewer__bar">
+    <span class="viewer__index" id="viewerIndex">1 / 1</span>
+    <div class="viewer__bar-actions">
+      <button type="button" class="iconbtn" id="viewerPrev" aria-label="prev">‹</button>
+      <button type="button" class="iconbtn" id="viewerNext" aria-label="next">›</button>
+      <button type="button" class="iconbtn" id="viewerClose" aria-label="close">✕</button>
+    </div>
+  </div>
+  <div class="viewer__track" id="viewerTrack"></div>
+</div>
+
+<!-- 購物清單 -->
+<div class="drawer" id="drawer" hidden>
+  <div class="drawer__panel" role="dialog" aria-modal="true">
+    <header class="drawer__head">
+      <h2 data-i18n="cartTitle">購物清單</h2>
+      <button type="button" class="iconbtn" id="drawerClose" aria-label="close">✕</button>
+    </header>
+    <div class="drawer__body" id="drawerBody"></div>
+    <footer class="drawer__foot" id="drawerFoot"></footer>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="/js/i18n.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: jp-mask-daigou
+    runtime: node
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # 訂單收件信箱（客戶送出表單後會寄到這裡）
+      - key: ORDER_TO
+        value: cia8885@gmail.com
+      # 建議在 Render 後台填入 Gmail 應用程式密碼，寄信最穩定；未填時會自動改用 FormSubmit 代理寄送
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      # 也可改用自架 SMTP
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
